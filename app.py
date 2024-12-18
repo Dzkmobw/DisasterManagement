@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 import pandas as pd
 from process_data import create_region_csv
+import os
 
 
 app = Flask(__name__)
@@ -162,14 +163,25 @@ def decode_id(row_id, description):
 @app.route('/')
 def index():
     input_file = 'data.xlsx'
+    folder_path = 'tbd'
     #output_file = 'decoded_data.xlsx'
 
     try:
-        # 读取 Excel 文件
-        df = pd.read_excel(input_file)
+        file_names = os.listdir(folder_path)
 
-        if 'id' not in df.columns:
-            return "Error: 输入文件中未找到id列，请检查文件格式。"
+        file_ids = [os.path.splitext(file)[0] for file in file_names]  # 去掉后缀的文件名
+        descriptions = file_names  # 完整的文件名（包括后缀）
+
+        # 创建新的 DataFrame 格式（id 和 描述）
+        file_df = pd.DataFrame({
+            'id': file_ids,         # 文件的去后缀部分作为 id
+            '描述': descriptions     # 文件的完整名字作为 描述
+})
+
+        # 读取 Excel 文件
+        data_df = pd.read_excel(input_file)
+        df = pd.concat([data_df, file_df], axis=0, ignore_index=True)
+        print(df)
 
         # 解码数据
         decoded_data = [decode_id(str(row['id']), row['描述']) for _, row in df.iterrows()]
