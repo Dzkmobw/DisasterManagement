@@ -181,7 +181,6 @@ def index():
         # 读取 Excel 文件
         data_df = pd.read_excel(input_file)
         df = pd.concat([data_df, file_df], axis=0, ignore_index=True)
-        print(df)
 
         # 解码数据
         decoded_data = [decode_id(str(row['id']), row['描述']) for _, row in df.iterrows()]
