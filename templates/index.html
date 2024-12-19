@@ -5,13 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>灾情数据管理系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 表头样式 */
+        th.sortable {
+            position: relative;
+            padding-right: 20px; /* 为箭头预留空间 */
+            cursor: pointer;
+            font-size: 20px; /* 增大字体 */
+            color: #333;
+            text-align: center;
+            transform: rotate(0deg); /* 强制横向显示文字 */
+            white-space: nowrap; /* 防止文字换行 */
+        }
+
+        /* 上箭头 */
+        th.sortable::before {
+            content: "▲"; /* 上箭头 */
+            font-size: 18px;
+            color: rgba(22, 99, 183, 0.5); /* 半透明蓝色 */
+            position: absolute;
+            right: 4px;
+            top: 65%;
+            transform: translateY(-50%);
+        }
+
+        /* 下箭头 */
+        th.sortable::after {
+            content: "▼"; /* 下箭头 */
+            font-size: 18px;
+            color: rgba(22, 99, 183, 0.5); /* 半透明蓝色 */
+            position: absolute;
+            right: -4px;
+            top: 35%;
+            transform: translateY(-50%);
+        }
+
+        /* 高亮上箭头 */
+        th.sortable.asc::before {
+            color: #007bff; /* 高亮上箭头颜色 */
+            opacity: 1;
+        }
+
+        /* 高亮下箭头 */
+        th.sortable.desc::after {
+            color: #007bff; /* 高亮下箭头颜色 */
+            opacity: 1;
+        }
+    </style>
     <script>
-        function openMapWindow(location) {
-            // 生成百度地图的搜索链接
-            var url = "https://map.baidu.com/search/?querytype=s&wd=" + encodeURIComponent(location);
-            
-            // 打开一个新窗口，设置窗口的宽度和高度
-            window.open(url, "_blank", "width=700,height=700,scrollbars=yes");
+        // 排序函数
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("dataTable");
+            switching = true;
+            dir = "asc"; // 默认升序
+
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+
+                // 循环所有行
+                for (i = 1; i < rows.length - 1; i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                    // 比较数据
+                    if (dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    } else if (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else if (switchcount === 0 && dir === "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+            updateArrows(n, dir);
+        }
+
+        // 更新箭头样式
+        function updateArrows(colIndex, direction) {
+            var headers = document.querySelectorAll("th.sortable");
+            headers.forEach(function(th, i) {
+                th.classList.remove("asc", "desc");
+                if (i === colIndex) th.classList.add(direction);
+            });
         }
     </script>
 </head>
@@ -19,18 +106,18 @@
     <div class="container mt-5">
         <h1 class="text-center">灾情数据管理系统</h1>
 
-        <table class="table table-striped table-bordered text-center mt-3">
+        <table id="dataTable" class="table table-striped table-bordered text-center mt-3">
             <thead>
                 <tr>
-                    <th>编号</th>
-                    <th>参考位置</th>
-                    <th>时间</th>
-                    <th>数据源</th>
-                    <th>数据载体</th>
-                    <th>分类</th>
-                    <th>子类</th>
-                    <th>标签</th>
-                    <th>描述</th>
+                    <th class="sortable" onclick="sortTable(0)">编号</th>
+                    <th class="sortable" onclick="sortTable(1)">参考位置</th>
+                    <th class="sortable" onclick="sortTable(2)">时间</th>
+                    <th class="sortable" onclick="sortTable(3)">数据源</th>
+                    <th class="sortable" onclick="sortTable(4)">数据载体</th>
+                    <th class="sortable" onclick="sortTable(5)">分类</th>
+                    <th class="sortable" onclick="sortTable(6)">子类</th>
+                    <th class="sortable" onclick="sortTable(7)">标签</th>
+                    <th class="sortable" onclick="sortTable(8)">描述</th>
                 </tr>
             </thead>
             <tbody>
