@@ -30,10 +30,11 @@ SOURCE_CODES = {
     
     # 其他数据
     "300": "其他数据"  
-}
+    }
 
 CARRIER_CODES = {
-    "0": "文字", "1": "图像", "2": "音频", "3": "视频","4": "其他"}
+    "0": "文字", "1": "图像", "2": "音频", "3": "视频","4": "其他"
+    }
 
     # 更新后的灾情信息分类字典
 CATEGORY_CODES ={
@@ -42,7 +43,7 @@ CATEGORY_CODES ={
     "3": "房屋破坏", 
     "4": "生命线工程灾情",
     "5": "次生灾害"
-}
+    }
 
 SUBCATEGORY_CODES = {
     # 震情
@@ -77,7 +78,7 @@ SUBCATEGORY_CODES = {
     "505": "地裂缝",
     "506": "地面沉降",
     "507": "其他"  
-}
+    }
 
 TAG_CODES = {
     # 震情
@@ -105,7 +106,7 @@ TAG_CODES = {
     "5001": "灾害损失",     
     "5002": "灾害范围",     
     "5003": "受灾程度",     
-}
+    }
 
 # 读取地理码 CSV 文件
 geo_df = pd.read_csv('region_code.csv')
@@ -174,9 +175,9 @@ def index():
 
         # 创建新的 DataFrame 格式（id 和 描述）
         file_df = pd.DataFrame({
-            'id': file_ids,         # 文件的去后缀部分作为 id
-            '描述': descriptions     # 文件的完整名字作为 描述
-})
+            'id': file_ids,
+            '描述': descriptions
+            })
 
         # 读取 Excel 文件
         data_df = pd.read_excel(input_file)
