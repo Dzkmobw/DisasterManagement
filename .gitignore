@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 .xls
+decoded_data.xlsx
+region_code.xls
 
 # C extensions
 *.so
