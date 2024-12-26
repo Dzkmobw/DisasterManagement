@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灾情数据管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            background: url("{{ url_for('static', filename='images/bg.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* 添加文字阴影 */
+            margin-bottom: 1.5rem;
+        }
+
+        /* 表格容器样式 */
+        .table-responsive {
+            background: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        table {
+            font-size: 0.95rem;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th.sortable {
+            position: relative;
+            cursor: pointer;
+            padding-right: 20px;
+            transition: background-color 0.3s;
+        }
+
+        th.sortable:hover {
+            background-color: #0056b3;
+        }
+
+        th.sortable::before, th.sortable::after {
+            content: "";
+            font-size: 0.8rem;
+            position: absolute;
+            right: 5px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        th.sortable.asc::before {
+            content: "▲";
+            color: #ffffff;
+        }
+
+        th.sortable.desc::after {
+            content: "▼";
+            color: #ffffff;
+        }
+
+        tr {
+            transition: background-color 0.3s;
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+    <script>
+        // 排序函数
+        function sortTable(columnIndex) {
+            const table = document.getElementById("dataTable");
+            const rows = Array.from(table.tBodies[0].rows); // 获取表体的行
+            const isAscending = table.getAttribute("data-sort-dir") === "asc";
+
+            // 排序逻辑
+            rows.sort((a, b) => {
+                const cellA = a.cells[columnIndex].innerText.trim();
+                const cellB = b.cells[columnIndex].innerText.trim();
+                return isAscending
+                    ? cellA.localeCompare(cellB)
+                    : cellB.localeCompare(cellA);
+            });
+
+            // 更新排序方向
+            table.setAttribute("data-sort-dir", isAscending ? "desc" : "asc");
+
+            // 重新渲染表格
+            const tbody = table.tBodies[0];
+            rows.forEach(row => tbody.appendChild(row));
+            updateArrows(columnIndex, isAscending ? "desc" : "asc");
+        }
+
+        // 更新箭头样式
+        function updateArrows(activeIndex, direction) {
+            document.querySelectorAll("th.sortable").forEach((th, index) => {
+                th.classList.remove("asc", "desc");
+                if (index === activeIndex) {
+                    th.classList.add(direction);
+                }
+            });
+        }
+
+        // 使用百度地图搜索位置，并弹出新的浏览器窗口
+        function openMapWindow(location) {
+            if (location) {
+                // 生成百度地图的搜索URL
+                const mapUrl = `https://map.baidu.com/search/?querytype=s&wd=${encodeURIComponent(location)}`;
+                // 弹出新的浏览器窗口，并设置窗口大小
+                window.open(mapUrl, '_blank', 'width=800,height=600,scrollbars=yes');
+            } else {
+                alert('无效的位置');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">灾情数据管理系统</h1>
+
+        <!-- 添加表格滚动支持 -->
+        <div class="table-responsive">
+            <table id="dataTable" class="table table-striped table-bordered text-center" data-sort-dir="asc" aria-label="灾情数据管理表">
+                <thead>
+                    <tr>
+                        <th class="sortable" onclick="sortTable(0)" aria-label="按编号排序">编号</th>
+                        <th class="sortable" onclick="sortTable(1)" aria-label="按参考位置排序">参考位置</th>
+                        <th class="sortable" onclick="sortTable(2)" aria-label="按时间排序">时间</th>
+                        <th class="sortable" onclick="sortTable(3)" aria-label="按数据源排序">数据源</th>
+                        <th class="sortable" onclick="sortTable(4)" aria-label="按数据载体排序">数据载体</th>
+                        <th class="sortable" onclick="sortTable(5)" aria-label="按分类排序">分类</th>
+                        <th class="sortable" onclick="sortTable(6)" aria-label="按子类排序">子类</th>
+                        <th class="sortable" onclick="sortTable(7)" aria-label="按标签排序">标签</th>
+                        <th class="sortable" onclick="sortTable(8)" aria-label="按描述排序">描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td>{{ row['编号'] }}</td>
+                        <td>
+                            {% if row['参考位置'] %}
+                                <a href="javascript:void(0);" onclick="openMapWindow('{{ row['参考位置'] }}')">
+                                    {{ row['参考位置'] }}
+                                </a>
+                            {% else %}
+                                无位置信息
+                            {% endif %}
+                        </td>
+                        <td>{{ row['时间'] }}</td>
+                        <td>{{ row['数据源'] }}</td>
+                        <td>{{ row['数据载体'] }}</td>
+                        <td>{{ row['分类'] }}</td>
+                        <td>{{ row['子类'] }}</td>
+                        <td>{{ row['标签'] }}</td>
+                        <td>{{ row['描述'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mb-3">
+            <a href="/stat" class="btn btn-primary btn-lg">查看日期与数据源统计</a>
+        </div>
+
+    </div>
+</body>
+</html>
